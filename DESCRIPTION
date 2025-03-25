@@ -21,3 +21,6 @@ URL: https://github.com/romainfrancois/jupyter.widgets.generate
 BugReports: https://github.com/romainfrancois/jupyter.widgets.generate/issues
 Remotes:
     romainfrancois/jupyter.widgets.base
+Depends: 
+    R (>= 2.10)
+LazyData: true
