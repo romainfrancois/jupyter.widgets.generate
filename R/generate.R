@@ -15,6 +15,8 @@ generate_dom_widget <- function(name = "Button", style = "ButtonStyle", error_ca
   view_module  <- model_data$`_view_module`
   view_name    <- model_data$`_view_name`
 
+  init_style <- if (!is.null(style)) "style = style, " else ""
+
   initialize_params_roxygen      <- generate_initialize_params_roxygen(name = name, style = style, model_data = model_data, error_call = error_call)
   factory_params_roxygen         <- generate_factory_params_roxygen(name = name, style = style, model_data = model_data, error_call = error_call)
 
