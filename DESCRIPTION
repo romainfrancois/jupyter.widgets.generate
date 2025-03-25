@@ -19,3 +19,5 @@ Imports:
     rlang
 URL: https://github.com/romainfrancois/jupyter.widgets.generate
 BugReports: https://github.com/romainfrancois/jupyter.widgets.generate/issues
+Remotes:
+    romainfrancois/jupyter.widgets.base
