@@ -6,7 +6,7 @@
 #'
 #' @export
 generate_dom_widget <- function(name = "Button", style = "ButtonStyle", error_call = current_env()) {
-  template <- paste(readLines(system.file("template", "DOMWidget.txt", package = "jupyter.widgets.base")), collapse = "\n")
+  template <- paste(readLines(system.file("template", "DOMWidget.txt", package = "jupyter.widgets.generate")), collapse = "\n")
 
   model_data <- extract_model_data(name = name, error_call = error_call)
 
@@ -123,7 +123,7 @@ generate_forward_factory_to_constructor <- function(name = "Button", style = NUL
 }
 
 extract_model_data <- function(name, error_call = caller_env()) {
-  data <- filter(jupyter.widgets.base::jupyterwidgetmodels, .data[["_model_name"]] == paste0(name, "Model"))
+  data <- filter(jupyter.widgets.generate::jupyterwidgetmodels, .data[["_model_name"]] == paste0(name, "Model"))
   if (nrow(data) != 1L) {
     cli::cli_abort(c("Wrong `model` {model}"), call = error_call)
   }
