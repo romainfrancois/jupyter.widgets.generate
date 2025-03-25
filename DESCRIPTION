@@ -13,6 +13,9 @@ Imports:
     cli,
     constructive,
     dplyr,
-    jupyter.widgets.base
+    glue,
+    jupyter.widgets.base,
+    purrr,
+    rlang
 URL: https://github.com/romainfrancois/jupyter.widgets.generate
 BugReports: https://github.com/romainfrancois/jupyter.widgets.generate/issues
