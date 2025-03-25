@@ -28,13 +28,11 @@ jupyter.widget.{{name}} <- R6::R6Class("jupyter.widget.{{name}}", inherit = jupy
       )
 
       super$initialize(
-        style           = style,
-
         `_model_module` = "{{model_module}}",
         `_model_name`   = "{{model_name}}",
         `_view_module`  = "{{view_module}}",
         `_view_name`    = "{{view_name}}",
-
+        {{init_style}}
         ...,
         error_call = error_call
       )
