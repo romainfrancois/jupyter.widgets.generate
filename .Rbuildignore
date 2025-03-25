@@ -1,3 +1,4 @@
 ^jupyter\.widgets\.generate\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
+^README\.Rmd$
