@@ -66,8 +66,10 @@ generate_style_widget <- function(name = "ButtonStyle", error_call = current_env
 generate_initialize_params_roxygen <- function(name = "Button", style = NULL, model_data, error_call = caller_env()) {
   attrs <- model_data$attributes[[1]]
 
+  help <- ifelse(attrs$help == "", "(undocumented)", attrs$help)
+
   lines <- c(
-    glue("#' @param {attrs$name} {attrs$help}"),
+    glue("#' @param {attrs$name} {help}"),
     if (!is.null(style)) {
       glue("#' @param style Must inherit from [jupyter.widget.{style}].")
     }
@@ -78,8 +80,10 @@ generate_initialize_params_roxygen <- function(name = "Button", style = NULL, mo
 generate_factory_params_roxygen <- function(name = "Button", style = NULL, model_data, error_call = caller_env()) {
   attrs <- model_data$attributes[[1]]
 
+  help <- ifelse(attrs$help == "", "(undocumented)", attrs$help)
+
   lines <- c(
-    glue("#' @param {attrs$name} {attrs$help}"),
+    glue("#' @param {attrs$name} {help}"),
     "#' ",
     if (!is.null(style)) {
       glue("#' @param style Must inherit from [jupyter.widget.{style}].")
