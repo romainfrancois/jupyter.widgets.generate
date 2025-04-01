@@ -30,7 +30,7 @@ attributes <- map(models, \(x) {
       type = list(attr$type),
       help = attr$help,
       default = list(attr$default),
-      allow_none = attr$allow_none
+      allow_none = attr$allow_none %||% TRUE
     )
   })
 
