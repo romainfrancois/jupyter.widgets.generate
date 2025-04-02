@@ -69,6 +69,9 @@ generate_load_check_state_enums <- function(name = "Button", model_data = extrac
 
   out <- character()
   n <- nrow(attrs)
+  if (n == 0) {
+    return("")
+  }
   for (i in seq_len(n)) {
     attr_name   <- attrs$name[i]
     values      <- attrs$enum[[i]]
@@ -83,7 +86,8 @@ generate_load_check_state_enums <- function(name = "Button", model_data = extrac
     )
   }
 
-  glue_collapse(out, sep = "\n")
+  out <- glue_collapse(out, sep = "\n")
+  glue(.trim = FALSE, '\nrlang::on_load({{\n{out}\n}})\n')
 }
 
 generate_initialize_params_roxygen <- function(name = "Button", style = NULL, model_data, error_call = caller_env()) {
