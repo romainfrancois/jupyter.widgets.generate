@@ -77,9 +77,6 @@ generate_load_check_state <- function(name = "Button", model_data, error_call = 
 
   out <- character()
   n <- nrow(attrs)
-  if (n == 0) {
-    return("")
-  }
   for (i in seq_len(n)) {
     attr_name   <- attrs$name[i]
     values      <- attrs$enum[[i]]
@@ -104,8 +101,13 @@ generate_load_check_state <- function(name = "Button", model_data, error_call = 
     out <- c(out, glue('  set_widget_state_check("jupyter.widget.{name}", "font_variant", unbox_one_of({values}, allow_null = TRUE, allow_empty = FALSE))'))
   }
 
-  out <- glue_collapse(out, sep = "\n")
-  glue(.trim = FALSE, '\nrlang::on_load({{\n{out}\n}})')
+  if (length(out) > 0) {
+    out <- glue_collapse(out, sep = "\n")
+    glue(.trim = FALSE, '\nrlang::on_load({{\n{out}\n}})')
+  } else {
+    ""
+  }
+
 }
 
 generate_private <- function(name = "Button", model_data, error_call = caller_env()) {
