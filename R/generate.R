@@ -28,6 +28,8 @@ generate_dom_widget <- function(name = "Button", style = "ButtonStyle", error_ca
   init_params_state              <- generate_init_params_state(name = name, style = style, model_data = model_data, error_call = error_call)
   active_bindings                <- generate_active_bindings(name = name, style = style, model_data = model_data, error_call = error_call)
 
+  load_check_state_enums         <- generate_load_check_state_enums(name = name, model_data = model_data, error_call = error_call)
+
   glue(template, .trim = FALSE, .open = "{{", .close = "}}")
 }
 
@@ -61,7 +63,32 @@ generate_style_widget <- function(name = "ButtonStyle", error_call = current_env
   glue(template, .trim = FALSE, .open = "{{", .close = "}}")
 }
 
+generate_load_check_state_enums <- function(name = "Button", model_data = extract_model_data(name = name, error_call = error_call), error_call = caller_env()) {
+  attrs <- model_data$attributes[[1]]
+  attrs <- filter(attrs, lengths(enum) > 0)
 
+  out <- character()
+  n <- nrow(attrs)
+  if (n == 0) {
+    return("")
+  }
+  for (i in seq_len(n)) {
+    attr_name   <- attrs$name[i]
+    values      <- attrs$enum[[i]]
+    allow_empty <- "" %in% values
+    allow_none  <- isTRUE(attrs$allow_none)
+    values      <- setdiff(values, "")
+    values      <- constructive::construct(values)$code
+
+    out <- c(
+      out,
+      glue('  set_widget_state_check("jupyter.widget.{name}", "{attr_name}", unbox_one_of({values}, allow_null = {allow_none}, allow_empty = {allow_empty}))')
+    )
+  }
+
+  out <- glue_collapse(out, sep = "\n")
+  glue(.trim = FALSE, '\nrlang::on_load({{\n{out}\n}})')
+}
 
 generate_initialize_params_roxygen <- function(name = "Button", style = NULL, model_data, error_call = caller_env()) {
   attrs <- model_data$attributes[[1]]
