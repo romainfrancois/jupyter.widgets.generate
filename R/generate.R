@@ -70,15 +70,42 @@ generate_style_widget <- function(name = "ButtonStyle", formals = c(), error_cal
 
 generate_load_check_state <- function(name = "Button", model_data, error_call = caller_env()) {
   attrs <- model_data$attributes[[1]]
-  has_children <- "children" %in% attrs$name
-  has_font_variant <- "font_variant" %in% attrs$name
-  has_text_decoration <- "text_decoration" %in% attrs$name
-  has_font_style <- "font_style" %in% attrs$name
-  has_font_weight <- "font_weight" %in% attrs$name
+
+  out <- character()
+
+  if ("children" %in% attrs$name) {
+    out <- c(out, glue('  set_widget_state_check("jupyter.widget.{name}", "children", check_state_children)'))
+  }
+
+  if ("font_variant" %in% attrs$name) {
+    accepted_font_variant <- c("normal", "small-caps", "all-small-caps", "petite-caps", "all-petite-caps", "unicase", "titling-caps")
+    out <- c(out, generate_set_widget_check_from_values(name, "font_variant", accepted_font_variant))
+  }
+
+  if ("text_decoration" %in% attrs$name) {
+    accepted_text_decoration <- c("none", "underline", "overline", "line-through", "blink")
+    out <- c(out, generate_set_widget_check_from_values(name, "text_decoration", accepted_text_decoration))
+  }
+
+  if ("font_style" %in% attrs$name) {
+    accepted_font_style <- c("normal", "italic", "oblique")
+    out <- c(out, generate_set_widget_check_from_values(name, "font_style", accepted_font_style))
+  }
+
+  if ("font_weight" %in% attrs$name) {
+    out <- c(out, glue(
+      '  set_widget_state_check("jupyter.widget.{name}", "font_weight", check_state_font_weight)'
+    ))
+  }
+
+  if ("_options_labels" %in% attrs$name) {
+    out <- c(out, glue(
+      '  set_widget_state_check("jupyter.widget.{name}", "options", check_state_options)'
+    ))
+  }
 
   attrs <- filter(attrs, lengths(enum) > 0)
 
-  out <- character()
   n <- nrow(attrs)
   for (i in seq_len(n)) {
     attr_name   <- attrs$name[i]
@@ -88,33 +115,9 @@ generate_load_check_state <- function(name = "Button", model_data, error_call = 
     values      <- setdiff(values, "")
     values      <- constructive::construct(values)$code
 
-    out <- c(
-      out,
-      glue('  set_widget_state_check("jupyter.widget.{name}", "{attr_name}", unbox_one_of({values}, allow_null = {allow_none}, allow_empty = {allow_empty}))')
-    )
-  }
-
-  if (has_children) {
-    out <- c(out, glue('  set_widget_state_check("jupyter.widget.{name}", "children", check_state_children)'))
-  }
-
-  if (has_font_variant) {
-    accepted_font_variant <- c("normal", "small-caps", "all-small-caps", "petite-caps", "all-petite-caps", "unicase", "titling-caps")
-    out <- c(out, generate_set_widget_check_from_values(name, "font_variant", accepted_font_variant))
-  }
-
-  if (has_text_decoration) {
-    accepted_text_decoration <- c("none", "underline", "overline", "line-through", "blink")
-    out <- c(out, generate_set_widget_check_from_values(name, "text_decoration", accepted_text_decoration))
-  }
-
-  if (has_font_style) {
-    accepted_font_style <- c("normal", "italic", "oblique")
-    out <- c(out, generate_set_widget_check_from_values(name, "font_style", accepted_font_style))
-  }
-
-  if (has_font_weight) {
-    out <- c(out, glue('  set_widget_state_check("jupyter.widget.{name}", "font_weight", check_state_font_weight)'))
+    out <- c(out, glue(
+      '  set_widget_state_check("jupyter.widget.{name}", "{attr_name}", unbox_one_of({values}, allow_null = {allow_none}, allow_empty = {allow_empty}))'
+    ))
   }
 
   if (length(out) > 0) {
@@ -133,15 +136,23 @@ generate_set_widget_check_from_values <- function(class, name, values) {
 
 generate_private <- function(name = "Button", model_data, error_call = caller_env()) {
   attrs <- model_data$attributes[[1]]
+
+  out <- character()
   if ("children" %in% attrs$name) {
-    '    children_ = list()'
-  } else {
-    ""
+    out <- c(out, '    children_ = list()')
   }
+
+  if (length(out) == 0) {
+    ""
+  } else {
+    glue_collapse(out, sep = "\n,")
+  }
+
 }
 
 generate_initialize_params_roxygen <- function(name = "Button", style = NULL, model_data, error_call = caller_env()) {
   attrs <- model_data$attributes[[1]]
+  attrs$name[attrs$name == "_options_labels"] <- "options"
 
   help <- ifelse(attrs$help == "", "(undocumented)", attrs$help)
 
@@ -156,6 +167,7 @@ generate_initialize_params_roxygen <- function(name = "Button", style = NULL, mo
 
 generate_factory_params_roxygen <- function(name = "Button", style = NULL, model_data, error_call = caller_env()) {
   attrs <- model_data$attributes[[1]]
+  attrs$name[attrs$name == "_options_labels"] <- "options"
 
   help <- ifelse(attrs$help == "", "(undocumented)", attrs$help)
 
@@ -179,6 +191,8 @@ extract_defaults <- function(attrs) {
 
 generate_initialize_params_defaults <- function(name = "Button", style = NULL, model_data, error_call = caller_env()) {
   attrs <- model_data$attributes[[1]]
+  attrs$name[attrs$name == "_options_labels"] <- "options"
+
   defaults <- extract_defaults(attrs)
 
   lines <- c(
@@ -192,6 +206,8 @@ generate_initialize_params_defaults <- function(name = "Button", style = NULL, m
 
 generate_factory_params_defaults <- function(name = "Button", style = NULL, model_data, error_call = caller_env()) {
   attrs <- model_data$attributes[[1]]
+  attrs$name[attrs$name == "_options_labels"] <- "options"
+
   defaults <- extract_defaults(attrs)
 
   lines <- c(
@@ -207,8 +223,13 @@ generate_factory_params_defaults <- function(name = "Button", style = NULL, mode
 generate_init_params_state <- function(name = "Button", style = NULL, model_data, error_call = caller_env()) {
   attrs <- model_data$attributes[[1]]
 
+  quoted_name <- attrs$name
+  quoted_name <- gsub("^(_.*)$" , "`\\1`", quoted_name)
+
+  attrs$name[attrs$name == "_options_labels"] <- "options"
+
   lines <- c(
-    glue("{attrs$name} = self$check_state('{attrs$name}', {attrs$name})")
+    glue("{quoted_name} = self$check_state('{attrs$name}', {attrs$name})")
   )
   glue_collapse(sep = ",\n", paste0("        ", lines))
 }
@@ -216,15 +237,28 @@ generate_init_params_state <- function(name = "Button", style = NULL, model_data
 generate_active_bindings <- function(name = "Button", style = NULL, model_data, error_call = caller_env()) {
   attrs <- model_data$attributes[[1]]
 
-  lines <- glue(.trim = FALSE, "
+  lines <- character()
+
+  if ("_options_labels" %in% attrs$name) {
+    lines <- c(lines, glue(.trim = FALSE, "
+    #' @field options
+    #' set options
+    options = function(x) if (missing(x)) private$state_[['_options_labels']] else self$update(`_options_labels` = self$check_state('options', x))"))
+
+    attrs <- attrs[attrs$name != '_options_labels', ]
+  }
+
+  lines <- c(lines, glue(.trim = FALSE, "
     #' @field {attrs$name}
     #' {attrs$help}
-    {attrs$name} = function(x) if(missing(x)) private$state_[['{attrs$name}']] else self$update({attrs$name} = self$check_state('{attrs$name}', x))")
+    {attrs$name} = function(x) if(missing(x)) private$state_[['{attrs$name}']] else self$update({attrs$name} = self$check_state('{attrs$name}', x))"))
+
   glue_collapse(sep = ",\n", paste0("    ", lines))
 }
 
 generate_forward_factory_to_constructor <- function(name = "Button", style = NULL, model_data, error_call = caller_env()) {
   attrs <- model_data$attributes[[1]]
+  attrs$name[attrs$name == "_options_labels"] <- "options"
 
   lines <- c(
     glue("{attrs$name} = {attrs$name}"),
@@ -240,6 +274,10 @@ generate_forward_factory_to_constructor <- function(name = "Button", style = NUL
 extract_model_data <- function(name, formals = c(), error_call = caller_env()) {
   data <- filter(jupyter.widgets.generate::jupyterwidgetmodels, .data[["_model_name"]] == paste0(name, "Model"))
   attrs <- data$attributes[[1]]
+
+  if ("options" %in% formals && "_options_labels" %in% attrs$name) {
+    formals[formals == "options"] <- "_options_labels"
+  }
 
   names <- attrs$name
   if (!all(formals %in% names)) {
