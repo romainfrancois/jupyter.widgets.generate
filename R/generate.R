@@ -28,7 +28,7 @@ generate_dom_widget <- function(name = "Button", style = "ButtonStyle", error_ca
   init_params_state              <- generate_init_params_state(name = name, style = style, model_data = model_data, error_call = error_call)
   active_bindings                <- generate_active_bindings(name = name, style = style, model_data = model_data, error_call = error_call)
 
-  load_check_state_enums         <- generate_load_check_state_enums(name = name, model_data = model_data, error_call = error_call)
+  load_check_state               <- generate_load_check_state(name = name, model_data = model_data, error_call = error_call)
   private                        <- generate_private(name = name, model_data = model_data, error_call = error_call)
 
   glue(template, .trim = FALSE, .open = "{{", .close = "}}")
@@ -64,8 +64,9 @@ generate_style_widget <- function(name = "ButtonStyle", error_call = current_env
   glue(template, .trim = FALSE, .open = "{{", .close = "}}")
 }
 
-generate_load_check_state_enums <- function(name = "Button", model_data = extract_model_data(name = name, error_call = error_call), error_call = caller_env()) {
+generate_load_check_state <- function(name = "Button", model_data = extract_model_data(name = name, error_call = error_call), error_call = caller_env()) {
   attrs <- model_data$attributes[[1]]
+  has_children <- "children" %in% attrs$name
   attrs <- filter(attrs, lengths(enum) > 0)
 
   out <- character()
@@ -85,6 +86,10 @@ generate_load_check_state_enums <- function(name = "Button", model_data = extrac
       out,
       glue('  set_widget_state_check("jupyter.widget.{name}", "{attr_name}", unbox_one_of({values}, allow_null = {allow_none}, allow_empty = {allow_empty}))')
     )
+  }
+
+  if (has_children) {
+    out <- c(out, '  set_widget_state_check("jupyter.widget.{name}", "children", check_state_children)')
   }
 
   out <- glue_collapse(out, sep = "\n")
