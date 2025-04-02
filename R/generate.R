@@ -73,6 +73,7 @@ generate_load_check_state <- function(name = "Button", model_data, error_call = 
   has_children <- "children" %in% attrs$name
   has_font_variant <- "font_variant" %in% attrs$name
   has_text_decoration <- "text_decoration" %in% attrs$name
+  has_font_style <- "font_style" %in% attrs$name
 
   attrs <- filter(attrs, lengths(enum) > 0)
 
@@ -104,6 +105,11 @@ generate_load_check_state <- function(name = "Button", model_data, error_call = 
   if (has_text_decoration) {
     accepted_text_decoration <- c("none", "underline", "overline", "line-through", "blink")
     out <- c(out, generate_set_widget_check_from_values(name, "text_decoration", accepted_text_decoration))
+  }
+
+  if (has_font_style) {
+    accepted_font_style <- c("normal", "italic", "oblique")
+    out <- c(out, generate_set_widget_check_from_values(name, "font_style", accepted_font_style))
   }
 
   if (length(out) > 0) {
