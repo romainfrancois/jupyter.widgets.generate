@@ -63,19 +63,20 @@ generate_style_widget <- function(name = "ButtonStyle", formals = c(), error_cal
   init_params_state              <- generate_init_params_state(name = name, style = style, model_data = model_data, error_call = error_call)
   active_bindings                <- generate_active_bindings(name = name, style = style, model_data = model_data, error_call = error_call)
 
+  load_check_state               <- generate_load_check_state(name = name, model_data = model_data, error_call = error_call)
+
   glue(template, .trim = FALSE, .open = "{{", .close = "}}")
 }
 
 generate_load_check_state <- function(name = "Button", model_data, error_call = caller_env()) {
   attrs <- model_data$attributes[[1]]
   has_children <- "children" %in% attrs$name
+  has_font_variant <- "font_variant" %in% attrs$name
+
   attrs <- filter(attrs, lengths(enum) > 0)
 
   out <- character()
   n <- nrow(attrs)
-  if (n == 0) {
-    return("")
-  }
   for (i in seq_len(n)) {
     attr_name   <- attrs$name[i]
     values      <- attrs$enum[[i]]
@@ -94,8 +95,19 @@ generate_load_check_state <- function(name = "Button", model_data, error_call = 
     out <- c(out, glue('  set_widget_state_check("jupyter.widget.{name}", "children", check_state_children)'))
   }
 
-  out <- glue_collapse(out, sep = "\n")
-  glue(.trim = FALSE, '\nrlang::on_load({{\n{out}\n}})')
+  if (has_font_variant) {
+    accepted_font_variant <- c("normal", "small-caps", "all-small-caps", "petite-caps", "all-petite-caps", "unicase", "titling-caps")
+    values      <- constructive::construct(accepted_font_variant, one_liner = TRUE)$code
+    out <- c(out, glue('  set_widget_state_check("jupyter.widget.{name}", "font_variant", unbox_one_of({values}, allow_null = TRUE, allow_empty = FALSE))'))
+  }
+
+  if (length(out) > 0) {
+    out <- glue_collapse(out, sep = "\n")
+    glue(.trim = FALSE, '\nrlang::on_load({{\n{out}\n}})')
+  } else {
+    ""
+  }
+
 }
 
 generate_private <- function(name = "Button", model_data, error_call = caller_env()) {
