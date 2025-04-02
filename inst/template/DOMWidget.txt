@@ -36,6 +36,10 @@ jupyter.widget.{{name}} <- R6::R6Class("jupyter.widget.{{name}}", inherit = jupy
 
   active = list(
 {{active_bindings}}
+  ),
+
+  private = list(
+{{private}}
   )
 )
 

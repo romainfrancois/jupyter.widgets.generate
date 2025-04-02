@@ -29,6 +29,7 @@ generate_dom_widget <- function(name = "Button", style = "ButtonStyle", error_ca
   active_bindings                <- generate_active_bindings(name = name, style = style, model_data = model_data, error_call = error_call)
 
   load_check_state_enums         <- generate_load_check_state_enums(name = name, model_data = model_data, error_call = error_call)
+  private                        <- generate_private(name = name, model_data = model_data, error_call = error_call)
 
   glue(template, .trim = FALSE, .open = "{{", .close = "}}")
 }
@@ -88,6 +89,15 @@ generate_load_check_state_enums <- function(name = "Button", model_data = extrac
 
   out <- glue_collapse(out, sep = "\n")
   glue(.trim = FALSE, '\nrlang::on_load({{\n{out}\n}})')
+}
+
+generate_private <- function(name = "Button", model_data = extract_model_data(name = name, error_call = error_call), error_call = caller_env()) {
+  attrs <- model_data$attributes[[1]]
+  if ("children" %in% attrs$name) {
+    '    children_ = list()'
+  } else {
+    ""
+  }
 }
 
 generate_initialize_params_roxygen <- function(name = "Button", style = NULL, model_data, error_call = caller_env()) {
