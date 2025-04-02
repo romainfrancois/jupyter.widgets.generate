@@ -98,7 +98,7 @@ generate_load_check_state <- function(name = "Button", model_data, error_call = 
   glue(.trim = FALSE, '\nrlang::on_load({{\n{out}\n}})')
 }
 
-generate_private <- function(name = "Button", error_call = caller_env()) {
+generate_private <- function(name = "Button", model_data, error_call = caller_env()) {
   attrs <- model_data$attributes[[1]]
   if ("children" %in% attrs$name) {
     '    children_ = list()'
