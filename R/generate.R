@@ -87,7 +87,7 @@ generate_load_check_state_enums <- function(name = "Button", model_data = extrac
   }
 
   out <- glue_collapse(out, sep = "\n")
-  glue(.trim = FALSE, '\nrlang::on_load({{\n{out}\n}})\n')
+  glue(.trim = FALSE, '\nrlang::on_load({{\n{out}\n}})')
 }
 
 generate_initialize_params_roxygen <- function(name = "Button", style = NULL, model_data, error_call = caller_env()) {
