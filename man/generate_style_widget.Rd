@@ -4,10 +4,16 @@
 \alias{generate_style_widget}
 \title{Generate documentation for style widgets}
 \usage{
-generate_style_widget(name = "ButtonStyle", error_call = current_env())
+generate_style_widget(
+  name = "ButtonStyle",
+  formals = c(),
+  error_call = current_env()
+)
 }
 \arguments{
 \item{name}{name of the model}
+
+\item{formals}{preferred formals order}
 
 \item{error_call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be

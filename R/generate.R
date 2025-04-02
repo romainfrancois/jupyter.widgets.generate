@@ -2,13 +2,14 @@
 #'
 #' @param name name of the model
 #' @param style if not NULL, enforce style
+#' @param formals preferred formals order
 #' @inheritParams rlang::args_error_context
 #'
 #' @export
-generate_dom_widget <- function(name = "Button", style = "ButtonStyle", error_call = current_env()) {
+generate_dom_widget <- function(name = "Button", style = "ButtonStyle", formals = c(), error_call = current_env()) {
   template <- paste(readLines(system.file("template", "DOMWidget.txt", package = "jupyter.widgets.generate")), collapse = "\n")
 
-  model_data <- extract_model_data(name = name, error_call = error_call)
+  model_data <- extract_model_data(name = name, formals = formals, error_call = error_call)
 
   model_module <- model_data$`_model_module`
   model_name   <- model_data$`_model_name`
@@ -37,13 +38,14 @@ generate_dom_widget <- function(name = "Button", style = "ButtonStyle", error_ca
 #' Generate documentation for style widgets
 #'
 #' @param name name of the model
+#' @param formals preferred formals order
 #' @inheritParams rlang::args_error_context
 #'
 #' @export
-generate_style_widget <- function(name = "ButtonStyle", error_call = current_env()) {
+generate_style_widget <- function(name = "ButtonStyle", formals = c(), error_call = current_env()) {
   template <- paste(readLines(system.file("template", "StyleWidget.txt", package = "jupyter.widgets.generate")), collapse = "\n")
 
-  model_data <- extract_model_data(name = name, error_call = error_call)
+  model_data <- extract_model_data(name = name, formals = formals, error_call = error_call)
 
   model_module <- model_data$`_model_module`
   model_name   <- model_data$`_model_name`
@@ -64,7 +66,7 @@ generate_style_widget <- function(name = "ButtonStyle", error_call = current_env
   glue(template, .trim = FALSE, .open = "{{", .close = "}}")
 }
 
-generate_load_check_state <- function(name = "Button", model_data = extract_model_data(name = name, error_call = error_call), error_call = caller_env()) {
+generate_load_check_state <- function(name = "Button", model_data, error_call = caller_env()) {
   attrs <- model_data$attributes[[1]]
   has_children <- "children" %in% attrs$name
   attrs <- filter(attrs, lengths(enum) > 0)
@@ -96,7 +98,7 @@ generate_load_check_state <- function(name = "Button", model_data = extract_mode
   glue(.trim = FALSE, '\nrlang::on_load({{\n{out}\n}})')
 }
 
-generate_private <- function(name = "Button", model_data = extract_model_data(name = name, error_call = error_call), error_call = caller_env()) {
+generate_private <- function(name = "Button", error_call = caller_env()) {
   attrs <- model_data$attributes[[1]]
   if ("children" %in% attrs$name) {
     '    children_ = list()'
@@ -202,8 +204,22 @@ generate_forward_factory_to_constructor <- function(name = "Button", style = NUL
   glue_collapse(sep = ",\n", paste0("    ", lines))
 }
 
-extract_model_data <- function(name, error_call = caller_env()) {
+extract_model_data <- function(name, formals = c(), error_call = caller_env()) {
   data <- filter(jupyter.widgets.generate::jupyterwidgetmodels, .data[["_model_name"]] == paste0(name, "Model"))
+  attrs <- data$attributes[[1]]
+
+  names <- attrs$name
+  if (!all(formals %in% names)) {
+    cli::cli_abort(call = error_call, c(
+      "Wrong formals= {.val {formals}}",
+      i = "`Must be in {.val {names}}."
+    ))
+  }
+
+  new_names <- c(formals, setdiff(names, formals))
+  attrs <- attrs[match(new_names, names), ]
+  data$attributes[[1]] <- attrs
+
   if (nrow(data) != 1L) {
     cli::cli_abort(c("Wrong `model` {model}"), call = error_call)
   }
