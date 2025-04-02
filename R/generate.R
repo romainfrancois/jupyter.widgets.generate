@@ -97,7 +97,7 @@ generate_load_check_state <- function(name = "Button", model_data, error_call = 
 
   if (has_font_variant) {
     accepted_font_variant <- c("normal", "small-caps", "all-small-caps", "petite-caps", "all-petite-caps", "unicase", "titling-caps")
-    values      <- constructive::construct(accepted_font_variant)$code
+    values      <- constructive::construct(accepted_font_variant, one_liner = TRUE)$code
     out <- c(out, glue('  set_widget_state_check("jupyter.widget.{name}", "font_variant", unbox_one_of({values}, allow_null = TRUE, allow_empty = FALSE))'))
   }
 
