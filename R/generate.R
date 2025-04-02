@@ -89,7 +89,7 @@ generate_load_check_state <- function(name = "Button", model_data = extract_mode
   }
 
   if (has_children) {
-    out <- c(out, '  set_widget_state_check("jupyter.widget.{name}", "children", check_state_children)')
+    out <- c(out, glue('  set_widget_state_check("jupyter.widget.{name}", "children", check_state_children)'))
   }
 
   out <- glue_collapse(out, sep = "\n")
