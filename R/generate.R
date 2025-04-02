@@ -82,7 +82,7 @@ generate_load_check_state_enums <- function(name = "Button", model_data = extrac
 
     out <- c(
       out,
-      glue('  set_widget_state_check("jupyter.widget.{name}", "{attr_name}", unbox_one_of({values}, allow_none = {allow_none}, allow_empty = {allow_empty}))')
+      glue('  set_widget_state_check("jupyter.widget.{name}", "{attr_name}", unbox_one_of({values}, allow_null = {allow_none}, allow_empty = {allow_empty}))')
     )
   }
 
