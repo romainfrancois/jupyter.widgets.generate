@@ -72,6 +72,9 @@ generate_load_check_state <- function(name = "Button", model_data, error_call = 
   attrs <- model_data$attributes[[1]]
   has_children <- "children" %in% attrs$name
   has_font_variant <- "font_variant" %in% attrs$name
+  has_text_decoration <- "text_decoration" %in% attrs$name
+  has_font_style <- "font_style" %in% attrs$name
+  has_font_weight <- "font_weight" %in% attrs$name
 
   attrs <- filter(attrs, lengths(enum) > 0)
 
@@ -97,8 +100,21 @@ generate_load_check_state <- function(name = "Button", model_data, error_call = 
 
   if (has_font_variant) {
     accepted_font_variant <- c("normal", "small-caps", "all-small-caps", "petite-caps", "all-petite-caps", "unicase", "titling-caps")
-    values      <- constructive::construct(accepted_font_variant, one_liner = TRUE)$code
-    out <- c(out, glue('  set_widget_state_check("jupyter.widget.{name}", "font_variant", unbox_one_of({values}, allow_null = TRUE, allow_empty = FALSE))'))
+    out <- c(out, generate_set_widget_check_from_values(name, "font_variant", accepted_font_variant))
+  }
+
+  if (has_text_decoration) {
+    accepted_text_decoration <- c("none", "underline", "overline", "line-through", "blink")
+    out <- c(out, generate_set_widget_check_from_values(name, "text_decoration", accepted_text_decoration))
+  }
+
+  if (has_font_style) {
+    accepted_font_style <- c("normal", "italic", "oblique")
+    out <- c(out, generate_set_widget_check_from_values(name, "font_style", accepted_font_style))
+  }
+
+  if (has_font_weight) {
+    out <- c(out, glue('  set_widget_state_check("jupyter.widget.{name}", "font_weight", check_state_font_weight)'))
   }
 
   if (length(out) > 0) {
@@ -107,8 +123,13 @@ generate_load_check_state <- function(name = "Button", model_data, error_call = 
   } else {
     ""
   }
-
 }
+
+generate_set_widget_check_from_values <- function(class, name, values) {
+  values      <- constructive::construct(values, one_liner = TRUE)$code
+  glue('  set_widget_state_check("jupyter.widget.{class}", "{name}", unbox_one_of({values}, allow_null = TRUE, allow_empty = FALSE))')
+}
+
 
 generate_private <- function(name = "Button", model_data, error_call = caller_env()) {
   attrs <- model_data$attributes[[1]]
