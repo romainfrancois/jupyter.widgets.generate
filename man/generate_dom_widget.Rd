@@ -7,6 +7,7 @@
 generate_dom_widget(
   name = "Button",
   style = "ButtonStyle",
+  formals = c(),
   error_call = current_env()
 )
 }
@@ -14,6 +15,8 @@ generate_dom_widget(
 \item{name}{name of the model}
 
 \item{style}{if not NULL, enforce style}
+
+\item{formals}{preferred formals order}
 
 \item{error_call}{The execution environment of a currently
 running function, e.g. \code{caller_env()}. The function will be
