@@ -57,3 +57,7 @@ jupyter.widget.{{name}} <- R6::R6Class("jupyter.widget.{{name}}", inherit = jupy
 {{forward_factory_to_constructor}}
   )
 }
+
+on_load({
+  {{load_check_state_enums}}
+})
