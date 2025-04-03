@@ -229,7 +229,7 @@ generate_init_params_state <- function(name = "Button", style = NULL, model_data
   attrs$name[attrs$name == "_options_labels"] <- "options"
 
   lines <- c(
-    glue("{quoted_name} = self$check_state('{attrs$name}', {attrs$name})")
+    glue("{quoted_name} = self$check_state('{attrs$name}', {attrs$name}, error_call = error_call)")
   )
   glue_collapse(sep = ",\n", paste0("        ", lines))
 }
@@ -243,7 +243,7 @@ generate_active_bindings <- function(name = "Button", style = NULL, model_data, 
     lines <- c(lines, glue(.trim = FALSE, "
     #' @field options
     #' set options
-    options = function(x) if (missing(x)) private$state_[['_options_labels']] else self$update(`_options_labels` = self$check_state('options', x))"))
+    options = function(x) if (missing(x)) private$state_[['_options_labels']] else self$update(`_options_labels` = self$check_state('options', x, error_call = quote({name}$options)))"))
 
     attrs <- attrs[attrs$name != '_options_labels', ]
   }
@@ -251,7 +251,7 @@ generate_active_bindings <- function(name = "Button", style = NULL, model_data, 
   lines <- c(lines, glue(.trim = FALSE, "
     #' @field {attrs$name}
     #' {attrs$help}
-    {attrs$name} = function(x) if(missing(x)) private$state_[['{attrs$name}']] else self$update({attrs$name} = self$check_state('{attrs$name}', x))"))
+    {attrs$name} = function(x) if(missing(x)) private$state_[['{attrs$name}']] else self$update({attrs$name} = self$check_state('{attrs$name}', x, error_call = quote({name}${attrs$name})))"))
 
   glue_collapse(sep = ",\n", paste0("    ", lines))
 }
